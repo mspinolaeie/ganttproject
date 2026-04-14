@@ -8,6 +8,15 @@ IF "%JAVA_HOME%"=="" SET JAVA_COMMAND=java
 SET LOCAL_CLASSPATH=%GP_HOME%\eclipsito.jar;%GP_HOME%\lib\slf4j-api-2.0.17.jar;%GP_HOME%\lib\slf4j-jdk14-2.0.4.jar;%GP_HOME%\lib\logback-core-1.5.18.jar;%GP_HOME%\lib\logback-classic-1.5.18.jar;%GP_HOME%
 SET JVM_ARGS=-Dgpcloud=prod -Dorg.jooq.no-logo=true -Xmx2048m  -ea -Dsun.java2d.d3d=false
 SET "ECLIPSITO_ARGS=--verbosity 4  --version-dirs plugins;~/.ganttproject.d/updates --app net.sourceforge.ganttproject.GanttProject"
+
+REM If JavaFX JARs are bundled in lib\ (built with -PwithJavafx), add them to the module path.
+REM This is needed when using a standard JDK without built-in JavaFX (e.g. Eclipse Adoptium).
+REM On Liberica/Zulu JDK+FX the variable stays empty and the JDK modules are used instead.
+SET "JAVAFX_OPTS="
+IF EXIST "%GP_HOME%\lib\javafx-graphics-21-win.jar" (
+    SET "JAVAFX_OPTS=--module-path %GP_HOME%\lib\javafx-base-21-win.jar;%GP_HOME%\lib\javafx-controls-21-win.jar;%GP_HOME%\lib\javafx-fxml-21-win.jar;%GP_HOME%\lib\javafx-graphics-21-win.jar;%GP_HOME%\lib\javafx-swing-21-win.jar --add-modules javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing"
+)
+
 SET JAVA_EXPORTS=--add-exports javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED ^
    --add-exports javafx.base/com.sun.javafx=ALL-UNNAMED ^
    --add-exports javafx.base/com.sun.javafx.event=ALL-UNNAMED ^
@@ -26,7 +35,7 @@ SET JAVA_EXPORTS=--add-exports javafx.controls/com.sun.javafx.scene.control.beha
 
 SET BOOT_CLASS=com.bardsoftware.eclipsito.Launch
 
-"%JAVA_COMMAND%" -classpath "%CLASSPATH%;%LOCAL_CLASSPATH%" %JVM_ARGS% %JAVA_EXPORTS% %BOOT_CLASS% %ECLIPSITO_ARGS% -log true  %1 %2 %3 %4 %5 %6
+"%JAVA_COMMAND%" -classpath "%CLASSPATH%;%LOCAL_CLASSPATH%" %JAVAFX_OPTS% %JVM_ARGS% %JAVA_EXPORTS% %BOOT_CLASS% %ECLIPSITO_ARGS% -log true  %1 %2 %3 %4 %5 %6
 if %ERRORLEVEL% EQU 9009 goto ERROR_NO_JAVA
 goto END
 
