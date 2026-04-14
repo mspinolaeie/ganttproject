@@ -143,7 +143,12 @@ task copyPlugin(dependsOn: jar) {
         def bootstrapLibDir = new File(rootProject.distBinDir, "lib")
         copy {
             into(bootstrapLibDir)
-            from(project.configurations.compileClasspath.minus(project.configurations.providedCompile.resolve())) {
+            // Use lenient resolution to gracefully handle platform-specific artifacts (e.g. JavaFX)
+            // that cannot be disambiguated without OS attributes on providedCompile.
+            def providedFiles = project.configurations.providedCompile
+                .incoming.artifactView { config -> config.lenient = true }
+                .files.files
+            from(project.configurations.compileClasspath.filter { f -> !providedFiles.contains(f) }) {
                 if (project.hasProperty("withJavafx")) {
                     include "javafx*.jar"
                 } else {

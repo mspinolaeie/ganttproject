@@ -1,3 +1,10 @@
+apply plugin: 'org.openjfx.javafxplugin'
+
+javafx {
+    version = "21"
+    modules = [ 'javafx.graphics', 'javafx.swing' ]
+}
+
 configurations {
     implementation.extendsFrom(providedCompile)
 }

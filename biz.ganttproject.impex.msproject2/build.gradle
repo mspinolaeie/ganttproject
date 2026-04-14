@@ -2,6 +2,13 @@ plugins {
     id "org.jetbrains.kotlin.jvm"
 }
 
+apply plugin: 'org.openjfx.javafxplugin'
+
+javafx {
+    version = "21"
+    modules = [ 'javafx.base' ]
+}
+
 configurations {
     implementation.extendsFrom(providedCompile)
 }
