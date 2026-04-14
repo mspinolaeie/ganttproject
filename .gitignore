@@ -3,7 +3,11 @@ dist-bin
 .idea
 .eclipse
 .gradle
+.vscode
 **/*.class
 ganttproject-builder/dist-win
 ganttproject-builder/dist-bin
 ganttproject-builder/runtime
+ganttproject-builder/lib/*.jar
+ganttproject/src/main/resources/biz/
+ganttproject/src/main/resources/com/
