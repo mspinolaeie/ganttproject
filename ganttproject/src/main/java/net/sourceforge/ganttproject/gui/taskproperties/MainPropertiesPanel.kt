@@ -298,6 +298,25 @@ private fun Task.isProjectTaskOrContainsProjectTask(): Boolean {
 // e.g. "option.taskProperties.main.progress.label". If we have translations for such keys, we're lucky,
 // however, there are already translated strings for the previously used keys, e.g. for "advancement" that corresponds
 // to "option.taskProperties.main.progress.label". We want to reuse them until we get the updated translations.
+private val legacyKeyTransform: (String) -> String = { key ->
+  val key1 = when {
+    key.endsWith(".label") -> key.removeSuffix(".label")
+    key.startsWith("priority.value.") -> "priority.${key.removePrefix("priority.value.")}"
+    else -> key
+  }
+  val map = mapOf(
+    "startDate" to "dateOfBegining",
+    "endDate" to "dateOfEnd",
+    "progress" to "advancement",
+    "milestone" to "meetingPoint",
+    "notes" to "notesTask",
+    "color" to "colors",
+    "texture" to "shape",
+    "btn.open" to "storage.action.open",
+  )
+  map[key1] ?: key1
+}
+
 private val i18n = i18n {
   // We will search for the translation corresponding to a structured key in the current language only.
   default(withFallback = false)
@@ -305,28 +324,16 @@ private val i18n = i18n {
     // If there is no translation, we'll search for the translation corresponding to the previously used unstructured key,
     // again in the current language only.
     default(withFallback = false)
-    transform { key ->
-      val key1 = when {
-        key.endsWith(".label") -> key.removeSuffix(".label")
-        key.startsWith("priority.value.") -> "priority.${key.removePrefix("priority.value.")}"
-        else -> key
-      }
-      val map = mapOf(
-        "startDate" to "dateOfBegining",
-        "endDate" to "dateOfEnd",
-        "progress" to "advancement",
-        "milestone" to "meetingPoint",
-        "notes" to "notesTask",
-        "color" to "colors",
-        "texture" to "shape",
-        "btn.open" to "storage.action.open",
-      )
-      map[key1] ?: key1
-    }
+    transform(legacyKeyTransform)
     fallback {
-      // Finally, we'll use the English translation of a structured key.
+      // Then we'll use the English translation of a structured key.
       default()
       prefix("option.taskProperties.main")
+      fallback {
+        // Finally, we'll fall back to the English translation of the previously used unstructured key.
+        default()
+        transform(legacyKeyTransform)
+      }
     }
   }
 }
