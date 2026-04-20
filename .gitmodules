@@ -2,3 +2,4 @@
 	path = biz.ganttproject.app.localization
 	url = https://github.com/bardsoftware/biz.ganttproject.app.localization.git
 	branch = BRANCH_3.3
+	ignore = untracked
